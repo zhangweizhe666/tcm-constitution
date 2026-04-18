@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>中医体质测算</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #222;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.06);
+    }
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+    .desc {
+      color: #666;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8deea;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+    }
+    .section-title {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #eef2f7;
+      margin-bottom: 16px;
+    }
+    .question {
+      border: 1px solid #e9edf5;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fcfdff;
+    }
+    .question-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .option {
+      border: 1px solid #dbe3f0;
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .option input {
+      margin-right: 6px;
+    }
+    .btn {
+      border: none;
+      background: #1677ff;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: #eff4ff;
+      color: #1668dc;
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hidden {
+      display: none;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef5ff;
+      color: #1668dc;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #edf1f6;
+      font-size: 14px;
+    }
+    th {
+      background: #fafbfd;
+    }
+    .warn {
+      color: #c23a3a;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .footer-note {
+      color: #666;
+      font-size: 13px;
+    }
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .score-highlight {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1668dc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="pageIntro">
+      <div class="top-actions">
+        <div>
+          <h1>中医体质测算</h1>
+          <div class="desc">请根据近一年的体验和感觉作答。提交后自动计算体质结果。</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn secondary" type="button" id="saveLocalBtn">保存本次结果到本机</button>
+          <button class="btn secondary" type="button" id="loadLocalBtn">读取上次结果</button>
+        </div>
+      </div>
+    </div>
+
+    <form id="assessmentForm">
+      <div class="card">
+        <h2 class="section-title">基础信息</h2>
+        <div class="grid">
+          <div>
+            <label for="name">姓名（可选）</label>
+            <input id="name" name="name" type="text" placeholder="请输入姓名" />
+          </div>
+          <div>
+            <label for="age">年龄（可选）</label>
+            <input id="age" name="age" type="number" min="0" max="120" placeholder="请输入年龄" />
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <label for="gender">性别</label>
+          <select id="gender" name="gender" required>
+            <option value="">请选择</option>
+            <option value="male">男</option>
+            <option value="female">女</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="questionnaire"></div>
+
+      <div class="card">
+        <div class="btn-row">
+          <button class="btn" type="submit">提交并计算</button>
+          <button class="btn secondary" type="button" id="resetBtn">清空重填</button>
+        </div>
+        <div class="footer-note" style="margin-top: 10px;">
+          说明：本工具仅用于体质测评参考，不替代临床诊断。
+        </div>
+        <div id="formError" class="warn hidden"></div>
+      </div>
+    </form>
+
+    <div id="resultSection" class="hidden"></div>
+  </div>
+
+  <script>
+    const OPTION_LABELS = {
+      1: "没有（根本不）",
+      2: "很少（有一点）",
+      3: "有时（有些）",
+      4: "经常（相当）",
+      5: "总是（非常）"
+    };
+
+    const QUESTIONNAIRE = [
+      {
+        constitution: "平和质",
+        items: [
+          { id: "PH1", text: "您精力充沛吗？", reverse: false, gender: "all" },
+          { id: "PH2", text: "您容易疲乏吗？", reverse: true, gender: "all" },
+          { id: "PH3", text: "您感到闷闷不乐、情绪低沉吗？", reverse: true, gender: "all" },
+          { id: "PH4", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: true, gender: "all" }
+        ]
+      },
+      {
+        constitution: "气虚质",
+        items: [
+          { id: "QX1", text: "您容易疲乏吗？", reverse: false, gender: "all" },
+          { id: "QX2", text: "您容易气短（呼吸短促，接不上气）吗？", reverse: false, gender: "all" },
+          { id: "QX3", text: "您容易心慌吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "阳虚质",
+        items: [
+          { id: "YX1", text: "您胃脘部、背部或腰膝部怕冷吗？", reverse: false, gender: "all" },
+          { id: "YX2", text: "您感到怕冷、衣服比别人穿得多吗？", reverse: false, gender: "all" },
+          { id: "YX3", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "阴虚质",
+        items: [
+          { id: "YY1", text: "您感觉身体、脸上发热吗？", reverse: false, gender: "all" },
+          { id: "YY2", text: "您皮肤或口唇干吗？", reverse: false, gender: "all" },
+          { id: "YY3", text: "您面部两颧潮红或偏红吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "痰湿质",
+        items: [
+          { id: "TS1", text: "您感到身体沉重不轻松或不爽快吗？", reverse: false, gender: "all" },
+          { id: "TS2", text: "您腹部肥满松软吗？", reverse: false, gender: "all" },
+          { id: "TS3", text: "您嘴里有黏黏的感觉吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "湿热质",
+        items: [
+          { id: "SR1", text: "您面部或鼻部有油腻感或者油亮发光吗？", reverse: false, gender: "all" },
+          { id: "SR2", text: "您小便时尿道有发热感、尿色浓（深）吗？", reverse: false, gender: "all" },
+          { id: "SR3", text: "您带下色黄（白带颜色发黄）吗？（限女性回答）", reverse: false, gender: "female" },
+          { id: "SR4", text: "您的阴囊部位潮湿吗？（限男性回答）", reverse: false, gender: "male" }
+        ]
+      },
+      {
+        constitution: "血瘀质",
+        items: [
+          { id: "XY1", text: "您身体上有哪里疼痛吗？", reverse: false, gender: "all" },
+          { id: "XY2", text: "您面色晦暗或容易出现褐斑吗？", reverse: false, gender: "all" },
+          { id: "XY3", text: "您口唇颜色偏暗吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "气郁质",
+        items: [
+          { id: "QY1", text: "您感到闷闷不乐、情绪低沉吗？", reverse: false, gender: "all" },
+          { id: "QY2", text: "您容易精神紧张、焦虑不安吗？", reverse: false, gender: "all" },
+          { id: "QY3", text: "您多愁善感、感情脆弱吗？", reverse: false, gender: "all" }
+        ]
+      },
+      {
+        constitution: "特禀质",
+        items: [
+          { id: "TB1", text: "您没有感冒时也会打喷嚏吗？", reverse: false, gender: "all" },
+          { id: "TB2", text: "您容易过敏（对药物、食物、气味、花粉或在季节交替、气候变化时）吗？", reverse: false, gender: "all" },
+          { id: "TB3", text: "您的皮肤容易起荨麻疹（风团、风疹块、风疙瘩）吗？", reverse: false, gender: "all" },
+          { id: "TB4", text: "您的皮肤一抓就红，并出现抓痕吗？", reverse: false, gender: "all" }
+        ]
+      }
+    ];
+
+    function reverseScore(value) {
+      return 6 - value;
+    }
+
+    function conversionScore(rawScore, itemCount) {
+      return Number((((rawScore - itemCount) / (itemCount * 4)) * 100).toFixed(2));
+    }
+
+    function getApplicableItems(gender) {
+      const result = [];
+      QUESTIONNAIRE.forEach(group => {
+        group.items.forEach(item => {
+          if (item.gender === "all" || item.gender === gender) {
+            result.push({ constitution: group.constitution, item });
+          }
+        });
+      });
+      return result;
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById("questionnaire");
+      container.innerHTML = "";
+
+      QUESTIONNAIRE.forEach(group => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<h2 class="section-title">${group.constitution}</h2>`;
+
+        group.items.forEach((item, index) => {
+          const q = document.createElement("div");
+          q.className = "question";
+          q.dataset.gender = item.gender;
+          q.innerHTML = `
+            <div class="question-title">${index + 1}. ${item.text}</div>
+            <div class="options">
+              ${Object.entries(OPTION_LABELS).map(([score, label]) => `
+                <label class="option">
+                  <input type="radio" name="${item.id}" value="${score}">
+                  ${score} ${label}
+                </label>
+              `).join("")}
+            </div>
+          `;
+          card.appendChild(q);
+        });
+
+        container.appendChild(card);
+      });
+
+      refreshGenderQuestions();
+    }
+
+    function refreshGenderQuestions() {
+      const gender = document.getElementById("gender").value;
+      const questions = document.querySelectorAll(".question");
+      questions.forEach(q => {
+        const limit = q.dataset.gender;
+        const visible = limit === "all" || limit === gender || gender === "";
+        q.style.display = visible ? "block" : "none";
+
+        if (!visible) {
+          q.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
+        }
+      });
+    }
+
+    function collectAnswers() {
+      const gender = document.getElementById("gender").value;
+      const applicableItems = getApplicableItems(gender);
+      const answers = {};
+
+      for (const { item } of applicableItems) {
+        const selected = document.querySelector(`input[name="${item.id}"]:checked`);
+        if (!selected) {
+          throw new Error(`请完成题目：${item.text}`);
+        }
+        answers[item.id] = Number(selected.value);
+      }
+      return answers;
+    }
+
+    function evaluateConstitution(answers, gender) {
+      const result = {};
+
+      QUESTIONNAIRE.forEach(group => {
+        const applicableItems = group.items.filter(item => item.gender === "all" || item.gender === gender);
+        const values = applicableItems.map(item => {
+          const raw = Number(answers[item.id]);
+          return item.reverse ? reverseScore(raw) : raw;
+        });
+
+        const rawScore = values.reduce((sum, v) => sum + v, 0);
+        const itemCount = applicableItems.length;
+        const transformedScore = conversionScore(rawScore, itemCount);
+
+        result[group.constitution] = {
+          raw_score: rawScore,
+          item_count: itemCount,
+          transformed_score: transformedScore
+        };
+      });
+
+      const otherNames = ["气虚质", "阳虚质", "阴虚质", "痰湿质", "湿热质", "血瘀质", "气郁质", "特禀质"];
+      const pingheScore = result["平和质"].transformed_score;
+      const otherScores = otherNames.map(name => result[name].transformed_score);
+
+      let pingheJudgment = "否";
+      if (pingheScore >= 60 && otherScores.every(s => s < 30)) {
+        pingheJudgment = "是";
+      } else if (pingheScore >= 60 && otherScores.every(s => s < 40)) {
+        pingheJudgment = "基本是";
+      }
+      result["平和质"].judgment = pingheJudgment;
+
+      otherNames.forEach(name => {
+        const score = result[name].transformed_score;
+        let judgment = "否";
+        if (score >= 40) {
+          judgment = "是";
+        } else if (score >= 30 && score <= 39) {
+          judgment = "倾向是";
+        }
+        result[name].judgment = judgment;
+      });
+
+      const positive = Object.entries(result)
+        .filter(([, data]) => ["是", "基本是", "倾向是"].includes(data.judgment))
+        .map(([constitution, data]) => ({ constitution, ...data }))
+        .sort((a, b) => b.transformed_score - a.transformed_score);
+
+      let primaryConstitution = "";
+      if (["是", "基本是"].includes(result["平和质"].judgment)) {
+        primaryConstitution = "平和质";
+      } else if (positive.length > 0) {
+        primaryConstitution = positive[0].constitution;
+      } else {
+        primaryConstitution = Object.entries(result).sort((a, b) => b[1].transformed_score - a[1].transformed_score)[0][0];
+      }
+
+      return {
+        primary_constitution: primaryConstitution,
+        positive_constitutions: positive,
+        all_scores: result
+      };
+    }
+
+    function renderResult(profile, summary, answers) {
+      const resultSection = document.getElementById("resultSection");
+      resultSection.className = "";
+      resultSection.innerHTML = `
+        <div class="card">
+          <h2>测算结果</h2>
+          <div class="desc">
+            ${profile.name ? `姓名：${escapeHtml(profile.name)} ｜ ` : ""}
+            性别：${profile.gender === "male" ? "男" : "女"}
+            ${profile.age ? ` ｜ 年龄：${escapeHtml(String(profile.age))}` : ""}
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>综合结论</h3>
+          <p>主判定体质：<span class="score-highlight">${summary.primary_constitution}</span></p>
+          ${
+            summary.positive_constitutions.length > 0
+              ? `<div>${summary.positive_constitutions.map(item =>
+                  `<span class="pill">${item.constitution}：${item.judgment}（${item.transformed_score}分）</span>`
+                ).join("")}</div>`
+              : `<p>暂无明显倾向体质，建议结合完整临床评估进一步判断。</p>`
+          }
+          <p class="footer-note">说明：本工具仅用于体质测评参考，不替代临床诊断。</p>
+        </div>
+
+        <div class="card">
+          <h3>各体质详细结果</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>体质类型</th>
+                <th>原始分</th>
+                <th>条目数</th>
+                <th>转化分</th>
+                <th>判定</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Object.entries(summary.all_scores).map(([name, data]) => `
+                <tr>
+                  <td>${name}</td>
+                  <td>${data.raw_score}</td>
+                  <td>${data.item_count}</td>
+                  <td>${data.transformed_score}</td>
+                  <td>${data.judgment}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="btn-row">
+            <button class="btn" type="button" id="saveResultBtn">保存本次结果到本机</button>
+            <button class="btn secondary" type="button" id="printBtn">打印 / 导出 PDF</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("saveResultBtn").onclick = () => {
+        saveToLocal(profile, answers, summary);
+        alert("已保存到当前浏览器本地。");
+      };
+      document.getElementById("printBtn").onclick = () => window.print();
+
+      resultSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function saveToLocal(profile, answers, summary) {
+      const data = {
+        saved_at: new Date().toISOString(),
+        profile,
+        answers,
+        summary
+      };
+      localStorage.setItem("tcm_constitution_latest", JSON.stringify(data));
+    }
+
+    function loadFromLocal() {
+      const raw = localStorage.getItem("tcm_constitution_latest");
+      if (!raw) {
+        alert("当前浏览器没有保存过结果。");
+        return;
+      }
+
+      const data = JSON.parse(raw);
+      const { profile, answers, summary } = data;
+
+      document.getElementById("name").value = profile.name || "";
+      document.getElementById("age").value = profile.age || "";
+      document.getElementById("gender").value = profile.gender || "";
+      refreshGenderQuestions();
+
+      Object.entries(answers).forEach(([id, value]) => {
+        const radio = document.querySelector(`input[name="${id}"][value="${value}"]`);
+        if (radio) radio.checked = true;
+      });
+
+      renderResult(profile, summary, answers);
+      alert("已读取上次保存结果。");
+    }
+
+    function resetForm() {
+      document.getElementById("assessmentForm").reset();
+      document.getElementById("resultSection").className = "hidden";
+      document.getElementById("resultSection").innerHTML = "";
+      document.getElementById("formError").className = "warn hidden";
+      document.getElementById("formError").textContent = "";
+      refreshGenderQuestions();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("gender").addEventListener("change", refreshGenderQuestions);
+
+    document.getElementById("assessmentForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const errorBox = document.getElementById("formError");
+      errorBox.className = "warn hidden";
+      errorBox.textContent = "";
+
+      try {
+        const gender = document.getElementById("gender").value;
+        const name = document.getElementById("name").value.trim();
+        const age = document.getElementById("age").value.trim();
+
+        if (!gender) {
+          throw new Error("请先选择性别。");
+        }
+
+        const answers = collectAnswers();
+        const summary = evaluateConstitution(answers, gender);
+        const profile = {
+          name,
+          age,
+          gender
+        };
+
+        renderResult(profile, summary, answers);
+      } catch (err) {
+        errorBox.textContent = err.message || "提交失败，请检查表单。";
+        errorBox.className = "warn";
+      }
+    });
+
+    document.getElementById("saveLocalBtn").addEventListener("click", function() {
+      try {
+        const gender = document.getElementById("gender").value;
+        if (!gender) {
+          alert("请至少先选择性别并完成一次测算。");
+          return;
+        }
+        const answers = collectAnswers();
+        const summary = evaluateConstitution(answers, gender);
+        const profile = {
+          name: document.getElementById("name").value.trim(),
+          age: document.getElementById("age").value.trim(),
+          gender
+        };
+        saveToLocal(profile, answers, summary);
+        alert("已保存到当前浏览器本地。");
+      } catch (err) {
+        alert(err.message || "保存失败，请先完成当前问卷。");
+      }
+    });
+
+    document.getElementById("loadLocalBtn").addEventListener("click", loadFromLocal);
+    document.getElementById("resetBtn").addEventListener("click", resetForm);
+
+    renderQuestions();
+  </script>
+</body>
+</html>
