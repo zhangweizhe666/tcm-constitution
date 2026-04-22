@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>中医体质测算</title>
+  <title>中医体质测算（统计版）</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -11,101 +11,112 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       background: #f5f7fb;
       color: #222;
-      line-height: 1.6;
+      line-height: 1.8;
+      font-size: 18px;
     }
     .container {
-      max-width: 1080px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 24px;
     }
     .card {
       background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 18px;
       box-shadow: 0 8px 28px rgba(0,0,0,0.06);
     }
     h1, h2, h3 {
       margin-top: 0;
+      line-height: 1.4;
     }
-    .desc {
+    h1 { font-size: 34px; }
+    h2 { font-size: 28px; }
+    h3 { font-size: 24px; }
+    .desc, .footer-note {
       color: #666;
-      font-size: 14px;
+      font-size: 16px;
     }
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 18px;
     }
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 18px;
     }
     @media (max-width: 900px) {
       .grid, .grid-3 {
         grid-template-columns: 1fr;
       }
+      body { font-size: 19px; }
+      h1 { font-size: 30px; }
     }
     label {
       display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 19px;
     }
     input[type="text"],
     input[type="number"],
     select,
     textarea {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       border: 1px solid #d8deea;
-      border-radius: 10px;
-      font-size: 15px;
+      border-radius: 12px;
+      font-size: 18px;
       background: #fff;
     }
     textarea {
-      min-height: 96px;
+      min-height: 110px;
       resize: vertical;
     }
     .section-title {
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       border-bottom: 2px solid #eef2f7;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .question {
       border: 1px solid #e9edf5;
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 12px;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
       background: #fcfdff;
     }
     .question-title {
-      font-weight: 600;
-      margin-bottom: 10px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 20px;
     }
     .options {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
     }
     .option {
       border: 1px solid #dbe3f0;
       background: #fff;
-      border-radius: 999px;
-      padding: 8px 12px;
+      border-radius: 14px;
+      padding: 12px 14px;
       cursor: pointer;
       font-weight: 500;
+      font-size: 18px;
     }
     .option input {
-      margin-right: 6px;
+      margin-right: 8px;
+      transform: scale(1.2);
     }
     .btn {
       border: none;
       background: #1677ff;
       color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 16px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 18px;
       cursor: pointer;
     }
     .btn.secondary {
@@ -122,24 +133,24 @@
     }
     .pill {
       display: inline-block;
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 999px;
       background: #eef5ff;
       color: #1668dc;
-      margin-right: 8px;
-      margin-bottom: 8px;
-      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
+      margin-top: 10px;
     }
     th, td {
       text-align: left;
       padding: 12px;
       border-bottom: 1px solid #edf1f6;
-      font-size: 14px;
+      font-size: 16px;
       vertical-align: top;
     }
     th {
@@ -147,12 +158,8 @@
     }
     .warn {
       color: #c23a3a;
-      font-size: 14px;
+      font-size: 16px;
       margin-top: 8px;
-    }
-    .footer-note {
-      color: #666;
-      font-size: 13px;
     }
     .top-actions {
       display: flex;
@@ -162,7 +169,7 @@
       flex-wrap: wrap;
     }
     .score-highlight {
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 700;
       color: #1668dc;
     }
@@ -173,6 +180,28 @@
       padding: 14px;
       margin-top: 12px;
     }
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .checkbox-group {
+        grid-template-columns: 1fr;
+      }
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid #dbe3f0;
+      border-radius: 12px;
+      background: #fff;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .checkbox-item input { transform: scale(1.2); }
   </style>
 </head>
 <body>
@@ -180,8 +209,8 @@
     <div class="card" id="pageIntro">
       <div class="top-actions">
         <div>
-          <h1>中医体质测算</h1>
-          <div class="desc">请根据近一年的体验和感觉作答。提交后自动计算体质结果，可导出 Excel。</div>
+          <h1>中医体质测算（统计版）</h1>
+          <div class="desc">适合老年人阅读的大字体版本。提交后自动计算体质结果，并导出适合校验和统计分析的 Excel 文件。</div>
         </div>
         <div class="btn-row">
           <button class="btn secondary" type="button" id="saveLocalBtn">保存本次结果到本机</button>
@@ -195,6 +224,10 @@
         <h2 class="section-title">基础信息</h2>
         <div class="grid-3">
           <div>
+            <label for="recordId">编号</label>
+            <input id="recordId" name="recordId" type="text" placeholder="例如：A001" />
+          </div>
+          <div>
             <label for="name">姓名（可选）</label>
             <input id="name" name="name" type="text" placeholder="请输入姓名" />
           </div>
@@ -206,20 +239,52 @@
               <option value="female">女</option>
             </select>
           </div>
+        </div>
+        <div class="grid-3" style="margin-top: 16px;">
           <div>
             <label for="age">年龄</label>
             <input id="age" name="age" type="number" min="0" max="120" placeholder="请输入年龄" />
           </div>
+          <div>
+            <label for="ageGroup">年龄分层</label>
+            <input id="ageGroup" name="ageGroup" type="text" placeholder="自动生成" readonly />
+          </div>
+          <div>
+            <label for="residence">居住地</label>
+            <input id="residence" name="residence" type="text" placeholder="例如：北京市朝阳区" />
+          </div>
         </div>
         <div class="grid" style="margin-top: 16px;">
           <div>
-            <label for="residence">居住地</label>
-            <input id="residence" name="residence" type="text" placeholder="例如：北京市朝阳区 / 上海市浦东新区" />
+            <label for="organization">社区/机构</label>
+            <input id="organization" name="organization" type="text" placeholder="例如：XX社区卫生服务中心" />
           </div>
           <div>
-            <label for="history">既往病史</label>
+            <label for="operatorName">测评人员</label>
+            <input id="operatorName" name="operatorName" type="text" placeholder="例如：张医生 / 王护士" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">既往病史与慢病信息</h2>
+        <div class="grid">
+          <div>
+            <label for="hasChronicDisease">是否有慢病</label>
+            <select id="hasChronicDisease" name="hasChronicDisease">
+              <option value="">请选择</option>
+              <option value="无">无</option>
+              <option value="有">有</option>
+            </select>
+          </div>
+          <div>
+            <label for="history">既往病史补充说明</label>
             <textarea id="history" name="history" placeholder="可填写既往疾病、过敏史、长期用药等"></textarea>
           </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <label>慢病类型（可多选）</label>
+          <div class="checkbox-group" id="chronicDiseaseGroup"></div>
         </div>
       </div>
 
@@ -250,92 +315,91 @@
       5: "总是（非常）"
     };
 
+    const CHRONIC_DISEASE_OPTIONS = [
+      "高血压", "糖尿病", "冠心病", "脑卒中", "骨关节病", "慢性胃病", "慢性呼吸系统疾病", "失眠", "便秘", "其他"
+    ];
+
     const QUESTIONNAIRE = [
-      {
-        constitution: "平和质",
-        items: [
-          { id: "PH1", text: "您精力充沛吗？", reverse: false, gender: "all" },
-          { id: "PH2", text: "您容易疲乏吗？", reverse: true, gender: "all" },
-          { id: "PH3", text: "您感到闷闷不乐、情绪低沉吗？", reverse: true, gender: "all" },
-          { id: "PH4", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: true, gender: "all" }
-        ]
-      },
-      {
-        constitution: "气虚质",
-        items: [
-          { id: "QX1", text: "您容易疲乏吗？", reverse: false, gender: "all" },
-          { id: "QX2", text: "您容易气短（呼吸短促，接不上气）吗？", reverse: false, gender: "all" },
-          { id: "QX3", text: "您容易心慌吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "阳虚质",
-        items: [
-          { id: "YX1", text: "您胃脘部、背部或腰膝部怕冷吗？", reverse: false, gender: "all" },
-          { id: "YX2", text: "您感到怕冷、衣服比别人穿得多吗？", reverse: false, gender: "all" },
-          { id: "YX3", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "阴虚质",
-        items: [
-          { id: "YY1", text: "您感觉身体、脸上发热吗？", reverse: false, gender: "all" },
-          { id: "YY2", text: "您皮肤或口唇干吗？", reverse: false, gender: "all" },
-          { id: "YY3", text: "您面部两颧潮红或偏红吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "痰湿质",
-        items: [
-          { id: "TS1", text: "您感到身体沉重不轻松或不爽快吗？", reverse: false, gender: "all" },
-          { id: "TS2", text: "您腹部肥满松软吗？", reverse: false, gender: "all" },
-          { id: "TS3", text: "您嘴里有黏黏的感觉吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "湿热质",
-        items: [
-          { id: "SR1", text: "您面部或鼻部有油腻感或者油亮发光吗？", reverse: false, gender: "all" },
-          { id: "SR2", text: "您小便时尿道有发热感、尿色浓（深）吗？", reverse: false, gender: "all" },
-          { id: "SR3", text: "您带下色黄（白带颜色发黄）吗？（限女性回答）", reverse: false, gender: "female" },
-          { id: "SR4", text: "您的阴囊部位潮湿吗？（限男性回答）", reverse: false, gender: "male" }
-        ]
-      },
-      {
-        constitution: "血瘀质",
-        items: [
-          { id: "XY1", text: "您身体上有哪里疼痛吗？", reverse: false, gender: "all" },
-          { id: "XY2", text: "您面色晦暗或容易出现褐斑吗？", reverse: false, gender: "all" },
-          { id: "XY3", text: "您口唇颜色偏暗吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "气郁质",
-        items: [
-          { id: "QY1", text: "您感到闷闷不乐、情绪低沉吗？", reverse: false, gender: "all" },
-          { id: "QY2", text: "您容易精神紧张、焦虑不安吗？", reverse: false, gender: "all" },
-          { id: "QY3", text: "您多愁善感、感情脆弱吗？", reverse: false, gender: "all" }
-        ]
-      },
-      {
-        constitution: "特禀质",
-        items: [
-          { id: "TB1", text: "您没有感冒时也会打喷嚏吗？", reverse: false, gender: "all" },
-          { id: "TB2", text: "您容易过敏（对药物、食物、气味、花粉或在季节交替、气候变化时）吗？", reverse: false, gender: "all" },
-          { id: "TB3", text: "您的皮肤容易起荨麻疹（风团、风疹块、风疙瘩）吗？", reverse: false, gender: "all" },
-          { id: "TB4", text: "您的皮肤一抓就红，并出现抓痕吗？", reverse: false, gender: "all" }
-        ]
-      }
+      { constitution: "平和质", items: [
+        { id: "PH1", text: "您精力充沛吗？", reverse: false, gender: "all" },
+        { id: "PH2", text: "您容易疲乏吗？", reverse: true, gender: "all" },
+        { id: "PH3", text: "您感到闷闷不乐、情绪低沉吗？", reverse: true, gender: "all" },
+        { id: "PH4", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: true, gender: "all" }
+      ]},
+      { constitution: "气虚质", items: [
+        { id: "QX1", text: "您容易疲乏吗？", reverse: false, gender: "all" },
+        { id: "QX2", text: "您容易气短（呼吸短促，接不上气）吗？", reverse: false, gender: "all" },
+        { id: "QX3", text: "您容易心慌吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "阳虚质", items: [
+        { id: "YX1", text: "您胃脘部、背部或腰膝部怕冷吗？", reverse: false, gender: "all" },
+        { id: "YX2", text: "您感到怕冷、衣服比别人穿得多吗？", reverse: false, gender: "all" },
+        { id: "YX3", text: "您比一般人耐受不了寒冷（冬天的寒冷、夏天的冷空调、电扇等）吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "阴虚质", items: [
+        { id: "YY1", text: "您感觉身体、脸上发热吗？", reverse: false, gender: "all" },
+        { id: "YY2", text: "您皮肤或口唇干吗？", reverse: false, gender: "all" },
+        { id: "YY3", text: "您面部两颧潮红或偏红吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "痰湿质", items: [
+        { id: "TS1", text: "您感到身体沉重不轻松或不爽快吗？", reverse: false, gender: "all" },
+        { id: "TS2", text: "您腹部肥满松软吗？", reverse: false, gender: "all" },
+        { id: "TS3", text: "您嘴里有黏黏的感觉吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "湿热质", items: [
+        { id: "SR1", text: "您面部或鼻部有油腻感或者油亮发光吗？", reverse: false, gender: "all" },
+        { id: "SR2", text: "您小便时尿道有发热感、尿色浓（深）吗？", reverse: false, gender: "all" },
+        { id: "SR3", text: "您带下色黄（白带颜色发黄）吗？（限女性回答）", reverse: false, gender: "female" },
+        { id: "SR4", text: "您的阴囊部位潮湿吗？（限男性回答）", reverse: false, gender: "male" }
+      ]},
+      { constitution: "血瘀质", items: [
+        { id: "XY1", text: "您身体上有哪里疼痛吗？", reverse: false, gender: "all" },
+        { id: "XY2", text: "您面色晦暗或容易出现褐斑吗？", reverse: false, gender: "all" },
+        { id: "XY3", text: "您口唇颜色偏暗吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "气郁质", items: [
+        { id: "QY1", text: "您感到闷闷不乐、情绪低沉吗？", reverse: false, gender: "all" },
+        { id: "QY2", text: "您容易精神紧张、焦虑不安吗？", reverse: false, gender: "all" },
+        { id: "QY3", text: "您多愁善感、感情脆弱吗？", reverse: false, gender: "all" }
+      ]},
+      { constitution: "特禀质", items: [
+        { id: "TB1", text: "您没有感冒时也会打喷嚏吗？", reverse: false, gender: "all" },
+        { id: "TB2", text: "您容易过敏（对药物、食物、气味、花粉或在季节交替、气候变化时）吗？", reverse: false, gender: "all" },
+        { id: "TB3", text: "您的皮肤容易起荨麻疹（风团、风疹块、风疙瘩）吗？", reverse: false, gender: "all" },
+        { id: "TB4", text: "您的皮肤一抓就红，并出现抓痕吗？", reverse: false, gender: "all" }
+      ]}
     ];
 
     let latestData = null;
 
-    function reverseScore(value) {
-      return 6 - value;
+    function initChronicDiseaseOptions() {
+      const container = document.getElementById("chronicDiseaseGroup");
+      container.innerHTML = CHRONIC_DISEASE_OPTIONS.map(option => `
+        <label class="checkbox-item">
+          <input type="checkbox" name="chronicDisease" value="${option}">
+          <span>${option}</span>
+        </label>
+      `).join("");
     }
+
+    function reverseScore(value) { return 6 - value; }
 
     function conversionScore(rawScore, itemCount) {
       return Number((((rawScore - itemCount) / (itemCount * 4)) * 100).toFixed(2));
+    }
+
+    function getAgeGroup(age) {
+      const n = Number(age);
+      if (!Number.isFinite(n)) return "";
+      if (n < 60) return "60岁以下";
+      if (n <= 69) return "60-69岁";
+      if (n <= 79) return "70-79岁";
+      return "80岁及以上";
+    }
+
+    function updateAgeGroup() {
+      const age = document.getElementById("age").value.trim();
+      document.getElementById("ageGroup").value = age ? getAgeGroup(age) : "";
     }
 
     function getApplicableItems(gender) {
@@ -353,12 +417,10 @@
     function renderQuestions() {
       const container = document.getElementById("questionnaire");
       container.innerHTML = "";
-
       QUESTIONNAIRE.forEach(group => {
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `<h2 class="section-title">${group.constitution}</h2>`;
-
         group.items.forEach((item, index) => {
           const q = document.createElement("div");
           q.className = "question";
@@ -376,10 +438,8 @@
           `;
           card.appendChild(q);
         });
-
         container.appendChild(card);
       });
-
       refreshGenderQuestions();
     }
 
@@ -390,7 +450,6 @@
         const limit = q.dataset.gender;
         const visible = limit === "all" || limit === gender || gender === "";
         q.style.display = visible ? "block" : "none";
-
         if (!visible) {
           q.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
         }
@@ -401,7 +460,6 @@
       const gender = document.getElementById("gender").value;
       const applicableItems = getApplicableItems(gender);
       const answers = {};
-
       for (const { item } of applicableItems) {
         const selected = document.querySelector(`input[name="${item.id}"]:checked`);
         if (!selected) {
@@ -412,20 +470,21 @@
       return answers;
     }
 
+    function collectChronicDiseases() {
+      return Array.from(document.querySelectorAll('input[name="chronicDisease"]:checked')).map(item => item.value);
+    }
+
     function evaluateConstitution(answers, gender) {
       const result = {};
-
       QUESTIONNAIRE.forEach(group => {
         const applicableItems = group.items.filter(item => item.gender === "all" || item.gender === gender);
         const values = applicableItems.map(item => {
           const raw = Number(answers[item.id]);
           return item.reverse ? reverseScore(raw) : raw;
         });
-
         const rawScore = values.reduce((sum, v) => sum + v, 0);
         const itemCount = applicableItems.length;
         const transformedScore = conversionScore(rawScore, itemCount);
-
         result[group.constitution] = {
           raw_score: rawScore,
           item_count: itemCount,
@@ -448,11 +507,8 @@
       otherNames.forEach(name => {
         const score = result[name].transformed_score;
         let judgment = "否";
-        if (score >= 40) {
-          judgment = "是";
-        } else if (score >= 30 && score <= 39) {
-          judgment = "倾向是";
-        }
+        if (score >= 40) judgment = "是";
+        else if (score >= 30 && score <= 39) judgment = "倾向是";
         result[name].judgment = judgment;
       });
 
@@ -477,6 +533,21 @@
       };
     }
 
+    function getQuestionInfoMap() {
+      const map = {};
+      QUESTIONNAIRE.forEach(group => {
+        group.items.forEach(item => {
+          map[item.id] = {
+            constitution: group.constitution,
+            text: item.text,
+            gender: item.gender,
+            reverse: item.reverse
+          };
+        });
+      });
+      return map;
+    }
+
     function renderResult(profile, summary, answers) {
       const resultSection = document.getElementById("resultSection");
       resultSection.className = "";
@@ -484,24 +555,28 @@
         <div class="card">
           <h2>测算结果</h2>
           <div class="desc">
+            ${profile.recordId ? `编号：${escapeHtml(profile.recordId)} ｜ ` : ""}
             ${profile.name ? `姓名：${escapeHtml(profile.name)} ｜ ` : ""}
             性别：${profile.gender === "male" ? "男" : "女"}
             ${profile.age ? ` ｜ 年龄：${escapeHtml(String(profile.age))}` : ""}
+            ${profile.ageGroup ? ` ｜ 年龄分层：${escapeHtml(profile.ageGroup)}` : ""}
             ${profile.residence ? ` ｜ 居住地：${escapeHtml(profile.residence)}` : ""}
           </div>
-          ${profile.history ? `<div class="subtle-box"><strong>既往病史：</strong>${escapeHtml(profile.history).replaceAll("\n", "<br>")}</div>` : ""}
+          <div class="subtle-box">
+            <div><strong>社区/机构：</strong>${escapeHtml(profile.organization || "") || "未填写"}</div>
+            <div><strong>测评人员：</strong>${escapeHtml(profile.operatorName || "") || "未填写"}</div>
+            <div><strong>是否有慢病：</strong>${escapeHtml(profile.hasChronicDisease || "") || "未填写"}</div>
+            <div><strong>慢病类型：</strong>${profile.chronicDiseases.length ? profile.chronicDiseases.map(escapeHtml).join("、") : "未填写"}</div>
+            <div><strong>既往病史补充：</strong>${profile.history ? escapeHtml(profile.history).replaceAll("\n", "<br>") : "未填写"}</div>
+          </div>
         </div>
 
         <div class="card">
           <h3>综合结论</h3>
           <p>主判定体质：<span class="score-highlight">${summary.primary_constitution}</span></p>
-          ${
-            summary.positive_constitutions.length > 0
-              ? `<div>${summary.positive_constitutions.map(item =>
-                  `<span class="pill">${item.constitution}：${item.judgment}（${item.transformed_score}分）</span>`
-                ).join("")}</div>`
-              : `<p>暂无明显倾向体质，建议结合完整临床评估进一步判断。</p>`
-          }
+          ${summary.positive_constitutions.length > 0
+            ? `<div>${summary.positive_constitutions.map(item => `<span class="pill">${item.constitution}：${item.judgment}（${item.transformed_score}分）</span>`).join("")}</div>`
+            : `<p>暂无明显倾向体质，建议结合完整临床评估进一步判断。</p>`}
           <p class="footer-note">说明：本工具仅用于体质测评参考，不替代临床诊断。</p>
         </div>
 
@@ -525,8 +600,7 @@
                   <td>${data.item_count}</td>
                   <td>${data.transformed_score}</td>
                   <td>${data.judgment}</td>
-                </tr>
-              `).join("")}
+                </tr>`).join("")}
             </tbody>
           </table>
         </div>
@@ -549,7 +623,7 @@
     }
 
     function escapeHtml(str) {
-      return str
+      return String(str)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -574,29 +648,38 @@
         alert("当前浏览器没有保存过结果。");
         return;
       }
-
       const data = JSON.parse(raw);
       const { profile, answers, summary } = data;
       latestData = data;
 
+      document.getElementById("recordId").value = profile.recordId || "";
       document.getElementById("name").value = profile.name || "";
-      document.getElementById("age").value = profile.age || "";
       document.getElementById("gender").value = profile.gender || "";
+      document.getElementById("age").value = profile.age || "";
+      document.getElementById("ageGroup").value = profile.ageGroup || "";
       document.getElementById("residence").value = profile.residence || "";
+      document.getElementById("organization").value = profile.organization || "";
+      document.getElementById("operatorName").value = profile.operatorName || "";
+      document.getElementById("hasChronicDisease").value = profile.hasChronicDisease || "";
       document.getElementById("history").value = profile.history || "";
-      refreshGenderQuestions();
 
+      document.querySelectorAll('input[name="chronicDisease"]').forEach(item => {
+        item.checked = profile.chronicDiseases?.includes(item.value) || false;
+      });
+
+      refreshGenderQuestions();
       Object.entries(answers).forEach(([id, value]) => {
         const radio = document.querySelector(`input[name="${id}"][value="${value}"]`);
         if (radio) radio.checked = true;
       });
-
       renderResult(profile, summary, answers);
       alert("已读取上次保存结果。");
     }
 
     function resetForm() {
       document.getElementById("assessmentForm").reset();
+      document.getElementById("ageGroup").value = "";
+      document.querySelectorAll('input[name="chronicDisease"]').forEach(item => item.checked = false);
       document.getElementById("resultSection").className = "hidden";
       document.getElementById("resultSection").innerHTML = "";
       document.getElementById("formError").className = "warn hidden";
@@ -607,41 +690,73 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function buildCsvContent(data) {
-      const rows = [];
-      rows.push(["字段", "内容"]);
-      rows.push(["姓名", data.profile.name || ""]);
-      rows.push(["性别", data.profile.gender === "male" ? "男" : "女"]);
-      rows.push(["年龄", data.profile.age || ""]);
-      rows.push(["居住地", data.profile.residence || ""]);
-      rows.push(["既往病史", data.profile.history || ""]);
-      rows.push(["保存时间", data.saved_at || ""]);
-      rows.push(["主判定体质", data.summary.primary_constitution || ""]);
-      rows.push([]);
-      rows.push(["体质类型", "原始分", "条目数", "转化分", "判定"]);
-
-      Object.entries(data.summary.all_scores).forEach(([name, detail]) => {
-        rows.push([
-          name,
-          detail.raw_score,
-          detail.item_count,
-          detail.transformed_score,
-          detail.judgment
-        ]);
-      });
-
-      rows.push([]);
-      rows.push(["题目ID", "作答分值"]);
-      Object.entries(data.answers).forEach(([id, value]) => {
-        rows.push([id, value]);
-      });
-
-      return rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
-    }
-
     function csvEscape(value) {
       const text = value == null ? "" : String(value);
       return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    function buildCsvRows() {
+      if (!latestData) return [];
+      const rows = [];
+      const qmap = getQuestionInfoMap();
+      const data = latestData;
+
+      rows.push(["sheet", "结果汇总"]);
+      rows.push([
+        "记录时间", "编号", "姓名", "性别", "年龄", "年龄分层", "居住地", "社区/机构", "测评人员", "是否有慢病", "慢病类型", "既往病史补充", "主判定体质",
+        "平和质判定", "气虚质判定", "阳虚质判定", "阴虚质判定", "痰湿质判定", "湿热质判定", "血瘀质判定", "气郁质判定", "特禀质判定",
+        "平和质转化分", "气虚质转化分", "阳虚质转化分", "阴虚质转化分", "痰湿质转化分", "湿热质转化分", "血瘀质转化分", "气郁质转化分", "特禀质转化分"
+      ]);
+      rows.push([
+        data.saved_at,
+        data.profile.recordId || "",
+        data.profile.name || "",
+        data.profile.gender === "male" ? "男" : "女",
+        data.profile.age || "",
+        data.profile.ageGroup || "",
+        data.profile.residence || "",
+        data.profile.organization || "",
+        data.profile.operatorName || "",
+        data.profile.hasChronicDisease || "",
+        (data.profile.chronicDiseases || []).join("、"),
+        data.profile.history || "",
+        data.summary.primary_constitution || "",
+        data.summary.all_scores["平和质"].judgment,
+        data.summary.all_scores["气虚质"].judgment,
+        data.summary.all_scores["阳虚质"].judgment,
+        data.summary.all_scores["阴虚质"].judgment,
+        data.summary.all_scores["痰湿质"].judgment,
+        data.summary.all_scores["湿热质"].judgment,
+        data.summary.all_scores["血瘀质"].judgment,
+        data.summary.all_scores["气郁质"].judgment,
+        data.summary.all_scores["特禀质"].judgment,
+        data.summary.all_scores["平和质"].transformed_score,
+        data.summary.all_scores["气虚质"].transformed_score,
+        data.summary.all_scores["阳虚质"].transformed_score,
+        data.summary.all_scores["阴虚质"].transformed_score,
+        data.summary.all_scores["痰湿质"].transformed_score,
+        data.summary.all_scores["湿热质"].transformed_score,
+        data.summary.all_scores["血瘀质"].transformed_score,
+        data.summary.all_scores["气郁质"].transformed_score,
+        data.summary.all_scores["特禀质"].transformed_score
+      ]);
+
+      rows.push([]);
+      rows.push(["sheet", "作答明细"]);
+      rows.push(["记录时间", "编号", "姓名", "题目ID", "体质类型", "题目内容", "用户选项值", "用户选项文本"]);
+      Object.entries(data.answers).forEach(([id, value]) => {
+        rows.push([
+          data.saved_at,
+          data.profile.recordId || "",
+          data.profile.name || "",
+          id,
+          qmap[id]?.constitution || "",
+          qmap[id]?.text || "",
+          value,
+          OPTION_LABELS[value] || ""
+        ]);
+      });
+      return rows;
     }
 
     function exportExcel() {
@@ -649,10 +764,11 @@
         alert("请先完成一次测算，再导出 Excel。");
         return;
       }
-      const csvContent = "\uFEFF" + buildCsvContent(latestData);
+      const rows = buildCsvRows();
+      const csvContent = "\uFEFF" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
-      const fileName = `中医体质测算结果_${formatDateForFileName(new Date())}.csv`;
+      const fileName = `中医体质测算统计版_${formatDateForFileName(new Date())}.csv`;
       link.href = URL.createObjectURL(blob);
       link.download = fileName;
       document.body.appendChild(link);
@@ -671,45 +787,44 @@
       return `${y}${m}${d}_${hh}${mm}${ss}`;
     }
 
+    function buildProfile() {
+      const age = document.getElementById("age").value.trim();
+      const chronicDiseases = collectChronicDiseases();
+      return {
+        recordId: document.getElementById("recordId").value.trim(),
+        name: document.getElementById("name").value.trim(),
+        gender: document.getElementById("gender").value,
+        age,
+        ageGroup: age ? getAgeGroup(age) : "",
+        residence: document.getElementById("residence").value.trim(),
+        organization: document.getElementById("organization").value.trim(),
+        operatorName: document.getElementById("operatorName").value.trim(),
+        hasChronicDisease: document.getElementById("hasChronicDisease").value,
+        chronicDiseases,
+        history: document.getElementById("history").value.trim()
+      };
+    }
+
     document.getElementById("gender").addEventListener("change", refreshGenderQuestions);
+    document.getElementById("age").addEventListener("input", updateAgeGroup);
 
     document.getElementById("assessmentForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const errorBox = document.getElementById("formError");
       errorBox.className = "warn hidden";
       errorBox.textContent = "";
-
       try {
-        const gender = document.getElementById("gender").value;
-        const name = document.getElementById("name").value.trim();
-        const age = document.getElementById("age").value.trim();
-        const residence = document.getElementById("residence").value.trim();
-        const history = document.getElementById("history").value.trim();
-
-        if (!gender) {
-          throw new Error("请先选择性别。");
-        }
-        if (!age) {
-          throw new Error("请填写年龄。");
-        }
-
+        const profile = buildProfile();
+        if (!profile.gender) throw new Error("请先选择性别。");
+        if (!profile.age) throw new Error("请填写年龄。");
         const answers = collectAnswers();
-        const summary = evaluateConstitution(answers, gender);
-        const profile = {
-          name,
-          age,
-          gender,
-          residence,
-          history
-        };
-
+        const summary = evaluateConstitution(answers, profile.gender);
         latestData = {
           saved_at: new Date().toISOString(),
           profile,
           answers,
           summary
         };
-
         renderResult(profile, summary, answers);
       } catch (err) {
         errorBox.textContent = err.message || "提交失败，请检查表单。";
@@ -719,20 +834,13 @@
 
     document.getElementById("saveLocalBtn").addEventListener("click", function() {
       try {
-        const gender = document.getElementById("gender").value;
-        if (!gender) {
+        const profile = buildProfile();
+        if (!profile.gender) {
           alert("请至少先选择性别并完成一次测算。");
           return;
         }
         const answers = collectAnswers();
-        const summary = evaluateConstitution(answers, gender);
-        const profile = {
-          name: document.getElementById("name").value.trim(),
-          age: document.getElementById("age").value.trim(),
-          gender,
-          residence: document.getElementById("residence").value.trim(),
-          history: document.getElementById("history").value.trim()
-        };
+        const summary = evaluateConstitution(answers, profile.gender);
         saveToLocal(profile, answers, summary);
         alert("已保存到当前浏览器本地。");
       } catch (err) {
@@ -744,6 +852,7 @@
     document.getElementById("resetBtn").addEventListener("click", resetForm);
     document.getElementById("exportExcelTopBtn").addEventListener("click", exportExcel);
 
+    initChronicDiseaseOptions();
     renderQuestions();
   </script>
 </body>
