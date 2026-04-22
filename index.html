@@ -228,11 +228,11 @@
             <input id="recordId" name="recordId" type="text" placeholder="例如：A001" />
           </div>
           <div>
-            <label for="name">姓名（可选）</label>
+            <label for="name">姓名</label>
             <input id="name" name="name" type="text" placeholder="请输入姓名" />
           </div>
           <div>
-            <label for="gender">性别</label>
+            <label for="gender">性别（必选）</label>
             <select id="gender" name="gender" required>
               <option value="">请选择</option>
               <option value="male">男</option>
@@ -242,7 +242,7 @@
         </div>
         <div class="grid-3" style="margin-top: 16px;">
           <div>
-            <label for="age">年龄</label>
+            <label for="age">年龄（必填）</label>
             <input id="age" name="age" type="number" min="0" max="120" placeholder="请输入年龄" />
           </div>
           <div>
@@ -270,7 +270,7 @@
         <h2 class="section-title">既往病史与慢病信息</h2>
         <div class="grid">
           <div>
-            <label for="hasChronicDisease">是否有慢病</label>
+            <label for="hasChronicDisease">是否有慢病（非必填）</label>
             <select id="hasChronicDisease" name="hasChronicDisease">
               <option value="">请选择</option>
               <option value="无">无</option>
@@ -278,12 +278,12 @@
             </select>
           </div>
           <div>
-            <label for="history">既往病史补充说明</label>
+            <label for="history">既往病史补充说明（非必填）</label>
             <textarea id="history" name="history" placeholder="可填写既往疾病、过敏史、长期用药等"></textarea>
           </div>
         </div>
         <div style="margin-top: 16px;">
-          <label>慢病类型（可多选）</label>
+          <label>慢病类型（可多选，非必选）</label>
           <div class="checkbox-group" id="chronicDiseaseGroup"></div>
         </div>
       </div>
