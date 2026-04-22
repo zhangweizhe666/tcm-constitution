@@ -14,7 +14,7 @@
       line-height: 1.6;
     }
     .container {
-      max-width: 980px;
+      max-width: 1080px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -37,8 +37,13 @@
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
-    @media (max-width: 768px) {
-      .grid {
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .grid, .grid-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -49,13 +54,18 @@
     }
     input[type="text"],
     input[type="number"],
-    select {
+    select,
+    textarea {
       width: 100%;
       padding: 12px;
       border: 1px solid #d8deea;
       border-radius: 10px;
       font-size: 15px;
       background: #fff;
+    }
+    textarea {
+      min-height: 96px;
+      resize: vertical;
     }
     .section-title {
       padding-bottom: 8px;
@@ -130,6 +140,7 @@
       padding: 12px;
       border-bottom: 1px solid #edf1f6;
       font-size: 14px;
+      vertical-align: top;
     }
     th {
       background: #fafbfd;
@@ -155,6 +166,13 @@
       font-weight: 700;
       color: #1668dc;
     }
+    .subtle-box {
+      background: #f7f9fc;
+      border: 1px solid #e7edf7;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
@@ -163,7 +181,7 @@
       <div class="top-actions">
         <div>
           <h1>中医体质测算</h1>
-          <div class="desc">请根据近一年的体验和感觉作答。提交后自动计算体质结果。</div>
+          <div class="desc">请根据近一年的体验和感觉作答。提交后自动计算体质结果，可导出 Excel。</div>
         </div>
         <div class="btn-row">
           <button class="btn secondary" type="button" id="saveLocalBtn">保存本次结果到本机</button>
@@ -175,23 +193,33 @@
     <form id="assessmentForm">
       <div class="card">
         <h2 class="section-title">基础信息</h2>
-        <div class="grid">
+        <div class="grid-3">
           <div>
             <label for="name">姓名（可选）</label>
             <input id="name" name="name" type="text" placeholder="请输入姓名" />
           </div>
           <div>
-            <label for="age">年龄（可选）</label>
+            <label for="gender">性别</label>
+            <select id="gender" name="gender" required>
+              <option value="">请选择</option>
+              <option value="male">男</option>
+              <option value="female">女</option>
+            </select>
+          </div>
+          <div>
+            <label for="age">年龄</label>
             <input id="age" name="age" type="number" min="0" max="120" placeholder="请输入年龄" />
           </div>
         </div>
-        <div style="margin-top: 16px;">
-          <label for="gender">性别</label>
-          <select id="gender" name="gender" required>
-            <option value="">请选择</option>
-            <option value="male">男</option>
-            <option value="female">女</option>
-          </select>
+        <div class="grid" style="margin-top: 16px;">
+          <div>
+            <label for="residence">居住地</label>
+            <input id="residence" name="residence" type="text" placeholder="例如：北京市朝阳区 / 上海市浦东新区" />
+          </div>
+          <div>
+            <label for="history">既往病史</label>
+            <textarea id="history" name="history" placeholder="可填写既往疾病、过敏史、长期用药等"></textarea>
+          </div>
         </div>
       </div>
 
@@ -201,6 +229,7 @@
         <div class="btn-row">
           <button class="btn" type="submit">提交并计算</button>
           <button class="btn secondary" type="button" id="resetBtn">清空重填</button>
+          <button class="btn secondary hidden" type="button" id="exportExcelTopBtn">导出 Excel</button>
         </div>
         <div class="footer-note" style="margin-top: 10px;">
           说明：本工具仅用于体质测评参考，不替代临床诊断。
@@ -298,6 +327,8 @@
         ]
       }
     ];
+
+    let latestData = null;
 
     function reverseScore(value) {
       return 6 - value;
@@ -456,7 +487,9 @@
             ${profile.name ? `姓名：${escapeHtml(profile.name)} ｜ ` : ""}
             性别：${profile.gender === "male" ? "男" : "女"}
             ${profile.age ? ` ｜ 年龄：${escapeHtml(String(profile.age))}` : ""}
+            ${profile.residence ? ` ｜ 居住地：${escapeHtml(profile.residence)}` : ""}
           </div>
+          ${profile.history ? `<div class="subtle-box"><strong>既往病史：</strong>${escapeHtml(profile.history).replaceAll("\n", "<br>")}</div>` : ""}
         </div>
 
         <div class="card">
@@ -501,7 +534,7 @@
         <div class="card">
           <div class="btn-row">
             <button class="btn" type="button" id="saveResultBtn">保存本次结果到本机</button>
-            <button class="btn secondary" type="button" id="printBtn">打印 / 导出 PDF</button>
+            <button class="btn secondary" type="button" id="exportExcelBtn">导出 Excel</button>
           </div>
         </div>
       `;
@@ -510,8 +543,8 @@
         saveToLocal(profile, answers, summary);
         alert("已保存到当前浏览器本地。");
       };
-      document.getElementById("printBtn").onclick = () => window.print();
-
+      document.getElementById("exportExcelBtn").onclick = exportExcel;
+      document.getElementById("exportExcelTopBtn").classList.remove("hidden");
       resultSection.scrollIntoView({ behavior: "smooth" });
     }
 
@@ -532,6 +565,7 @@
         summary
       };
       localStorage.setItem("tcm_constitution_latest", JSON.stringify(data));
+      latestData = data;
     }
 
     function loadFromLocal() {
@@ -543,10 +577,13 @@
 
       const data = JSON.parse(raw);
       const { profile, answers, summary } = data;
+      latestData = data;
 
       document.getElementById("name").value = profile.name || "";
       document.getElementById("age").value = profile.age || "";
       document.getElementById("gender").value = profile.gender || "";
+      document.getElementById("residence").value = profile.residence || "";
+      document.getElementById("history").value = profile.history || "";
       refreshGenderQuestions();
 
       Object.entries(answers).forEach(([id, value]) => {
@@ -564,8 +601,74 @@
       document.getElementById("resultSection").innerHTML = "";
       document.getElementById("formError").className = "warn hidden";
       document.getElementById("formError").textContent = "";
+      document.getElementById("exportExcelTopBtn").classList.add("hidden");
+      latestData = null;
       refreshGenderQuestions();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function buildCsvContent(data) {
+      const rows = [];
+      rows.push(["字段", "内容"]);
+      rows.push(["姓名", data.profile.name || ""]);
+      rows.push(["性别", data.profile.gender === "male" ? "男" : "女"]);
+      rows.push(["年龄", data.profile.age || ""]);
+      rows.push(["居住地", data.profile.residence || ""]);
+      rows.push(["既往病史", data.profile.history || ""]);
+      rows.push(["保存时间", data.saved_at || ""]);
+      rows.push(["主判定体质", data.summary.primary_constitution || ""]);
+      rows.push([]);
+      rows.push(["体质类型", "原始分", "条目数", "转化分", "判定"]);
+
+      Object.entries(data.summary.all_scores).forEach(([name, detail]) => {
+        rows.push([
+          name,
+          detail.raw_score,
+          detail.item_count,
+          detail.transformed_score,
+          detail.judgment
+        ]);
+      });
+
+      rows.push([]);
+      rows.push(["题目ID", "作答分值"]);
+      Object.entries(data.answers).forEach(([id, value]) => {
+        rows.push([id, value]);
+      });
+
+      return rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+    }
+
+    function csvEscape(value) {
+      const text = value == null ? "" : String(value);
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    function exportExcel() {
+      if (!latestData) {
+        alert("请先完成一次测算，再导出 Excel。");
+        return;
+      }
+      const csvContent = "\uFEFF" + buildCsvContent(latestData);
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const fileName = `中医体质测算结果_${formatDateForFileName(new Date())}.csv`;
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }
+
+    function formatDateForFileName(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      const ss = String(date.getSeconds()).padStart(2, "0");
+      return `${y}${m}${d}_${hh}${mm}${ss}`;
     }
 
     document.getElementById("gender").addEventListener("change", refreshGenderQuestions);
@@ -580,9 +683,14 @@
         const gender = document.getElementById("gender").value;
         const name = document.getElementById("name").value.trim();
         const age = document.getElementById("age").value.trim();
+        const residence = document.getElementById("residence").value.trim();
+        const history = document.getElementById("history").value.trim();
 
         if (!gender) {
           throw new Error("请先选择性别。");
+        }
+        if (!age) {
+          throw new Error("请填写年龄。");
         }
 
         const answers = collectAnswers();
@@ -590,7 +698,16 @@
         const profile = {
           name,
           age,
-          gender
+          gender,
+          residence,
+          history
+        };
+
+        latestData = {
+          saved_at: new Date().toISOString(),
+          profile,
+          answers,
+          summary
         };
 
         renderResult(profile, summary, answers);
@@ -612,7 +729,9 @@
         const profile = {
           name: document.getElementById("name").value.trim(),
           age: document.getElementById("age").value.trim(),
-          gender
+          gender,
+          residence: document.getElementById("residence").value.trim(),
+          history: document.getElementById("history").value.trim()
         };
         saveToLocal(profile, answers, summary);
         alert("已保存到当前浏览器本地。");
@@ -623,6 +742,7 @@
 
     document.getElementById("loadLocalBtn").addEventListener("click", loadFromLocal);
     document.getElementById("resetBtn").addEventListener("click", resetForm);
+    document.getElementById("exportExcelTopBtn").addEventListener("click", exportExcel);
 
     renderQuestions();
   </script>
